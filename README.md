@@ -58,10 +58,23 @@ The API runs on:
 http://localhost:3000
 ```
 
+Swagger documentation is available on:
+
+```text
+http://localhost:3000/api
+```
+
 If port `3000` is already used:
 
 ```bash
 PORT=3001 npm run start:dev
+```
+
+In that case, use:
+
+```text
+http://localhost:3001
+http://localhost:3001/api
 ```
 
 ## Prisma
