@@ -3,6 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { z } from 'zod';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthController } from './auth/auth.controller';
+import { UsersController } from './users/users.controller';
+import { ListsController } from './lists/lists.controller';
+import { CardsController } from './cards/cards.controller';
 
 @Module({
   imports: [
@@ -21,7 +25,8 @@ import { AppService } from './app.service';
       }),
     }),
   ],
-  controllers: [AppController],
+
+  controllers: [AppController, AuthController, UsersController, ListsController, CardsController],
   providers: [AppService],
 })
 export class AppModule {}
