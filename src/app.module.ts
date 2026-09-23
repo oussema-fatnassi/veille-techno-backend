@@ -3,12 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { z } from 'zod';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
 import { UsersController } from './users/users.controller';
 import { ListsController } from './lists/lists.controller';
 import { CardsController } from './cards/cards.controller';
-import { PrismaService } from './prisma/prisma.service';
-import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -27,17 +25,19 @@ import { AuthService } from './auth/auth.service';
         DATABASE_URL: z
           .string()
           .url('DATABASE_URL must be a valid database URL'),
+        JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
+        JWT_EXPIRES_IN: z.string().default('1h'),
       }),
     }),
+    AuthModule,
   ],
 
   controllers: [
     AppController,
-    AuthController,
     UsersController,
     ListsController,
     CardsController,
   ],
-  providers: [AppService, PrismaService, AuthService],
+  providers: [AppService],
 })
 export class AppModule {}
