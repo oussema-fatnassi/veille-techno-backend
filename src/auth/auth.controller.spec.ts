@@ -1,5 +1,6 @@
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import type { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
 jest.mock('@nestjs/common', () => {
@@ -8,6 +9,11 @@ jest.mock('@nestjs/common', () => {
   return {
     Body: () => () => undefined,
     Controller: () => () => undefined,
+    HttpCode: () => () => undefined,
+    HttpStatus: {
+      CREATED: 201,
+      OK: 200,
+    },
     Injectable: () => () => undefined,
     NotImplementedException,
     Post: () => () => undefined,
@@ -20,14 +26,20 @@ jest.mock('@nestjs/swagger', () => ({
   ApiTags: () => () => undefined,
 }));
 
+jest.mock('@nestjs/jwt', () => ({
+  JwtService: jest.fn(),
+}));
+
 describe('AuthController', () => {
   let authController: AuthController;
   let authServiceMock: {
+    login: jest.Mock;
     register: jest.Mock;
   };
 
   beforeEach(() => {
     authServiceMock = {
+      login: jest.fn(),
       register: jest.fn(),
     };
     authController = new AuthController(
@@ -54,6 +66,23 @@ describe('AuthController', () => {
     const result = await authController.register(registerDto);
 
     expect(authServiceMock.register).toHaveBeenCalledWith(registerDto);
+    expect(result).toBe(expectedResult);
+  });
+
+  it('delegates user login to AuthService', async () => {
+    const loginDto: LoginDto = {
+      email: 'user@example.com',
+      password: 'Password1',
+    };
+    const expectedResult = {
+      accessToken: 'signed-jwt',
+    };
+
+    authServiceMock.login.mockResolvedValue(expectedResult);
+
+    const result = await authController.login(loginDto);
+
+    expect(authServiceMock.login).toHaveBeenCalledWith(loginDto);
     expect(result).toBe(expectedResult);
   });
 });
