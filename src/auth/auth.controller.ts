@@ -1,11 +1,5 @@
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import {
-  Controller,
-  Post,
-  Body,
-  HttpCode,
-  HttpStatus
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -32,8 +26,11 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Login a user' })
   @ApiResponse({ status: 200, description: 'Login successful' })
-  @ApiResponse({ status: 400, description: 'Validation error: invalid email or missing required field'})
-  @ApiResponse({ status: 401, description: 'Invalid credentials'})
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error: invalid email or missing required field',
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
