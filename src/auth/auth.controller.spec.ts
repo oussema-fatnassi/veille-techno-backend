@@ -21,6 +21,7 @@ jest.mock('@nestjs/common', () => {
 });
 
 jest.mock('@nestjs/swagger', () => ({
+  ApiBody: () => () => undefined,
   ApiOperation: () => () => undefined,
   ApiResponse: () => () => undefined,
   ApiTags: () => () => undefined,
