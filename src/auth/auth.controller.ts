@@ -1,4 +1,4 @@
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
@@ -11,7 +11,25 @@ export class AuthController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
+  @ApiOperation({
+    summary: 'Register a new user',
+    description:
+      'Creates a new account with a unique email, hashes the password, and returns the created user without the password.',
+  })
+  @ApiBody({
+    type: RegisterDto,
+    description: 'User information required to create an account.',
+    examples: {
+      validRegisterPayload: {
+        summary: 'Valid registration payload',
+        value: {
+          email: 'oussema@example.com',
+          password: 'Password1!',
+          name: 'Oussema Fatnassi',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 201, description: 'User created successfully' })
   @ApiResponse({
     status: 400,
@@ -24,7 +42,24 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  @ApiOperation({ summary: 'Login a user' })
+  @ApiOperation({
+    summary: 'Login a user',
+    description:
+      'Authenticates a user with email and password, then returns a JWT access token to use on protected routes.',
+  })
+  @ApiBody({
+    type: LoginDto,
+    description: 'Credentials of an existing user.',
+    examples: {
+      validLoginPayload: {
+        summary: 'Valid login payload',
+        value: {
+          email: 'oussema@example.com',
+          password: 'Password1!',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Login successful' })
   @ApiResponse({
     status: 400,

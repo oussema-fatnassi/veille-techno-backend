@@ -21,6 +21,7 @@ async function bootstrap() {
     .setTitle('Kanban Board API')
     .setDescription('The Kanban Board API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('kanban')
     .build();
 
