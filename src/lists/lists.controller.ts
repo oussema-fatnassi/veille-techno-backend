@@ -17,6 +17,7 @@ import {
   HttpCode,
   HttpStatus,
   Body,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
@@ -158,12 +159,62 @@ export class ListsController {
     throw new NotImplementedException('Route not implemented yet');
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @ApiOperation({
-    summary: '[NOT IMPLEMENTED YET] Delete a list for the current user',
+    summary: 'Delete a list for the current user',
+    description:
+      'Deletes a list owned by the authenticated user. A user cannot delete a list owned by another user.',
   })
-  @ApiResponse({ status: 501, description: 'Not Implemented yet' })
-  deleteList(@Param('id') id: string) {
-    throw new NotImplementedException('Route not implemented yet');
+  @ApiResponse({
+    status: 204,
+    description: 'List deleted successfully. No response body is returned.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, invalid, or expired bearer token',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Missing authorization token',
+          error: 'Unauthorized',
+          statusCode: 401,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'The authenticated user is not the owner of this list.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'You cannot delete a list owned by another user',
+          error: 'Forbidden',
+          statusCode: 403,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The target list does not exist.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'List not found',
+          error: 'Not Found',
+          statusCode: 404,
+        },
+      },
+    },
+  })
+  deleteList(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ) {
+    return this.listsService.deleteForUser(currentUser.id, id);
   }
 }
