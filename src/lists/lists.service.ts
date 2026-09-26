@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateListDto } from './dto/create-list.dto';
 
@@ -34,5 +38,34 @@ export class ListsService {
         ownerId: currentUserId,
       },
     });
+  }
+
+  async deleteForUser(currentUserId: number, listId: number) {
+    const list = await this.findListOrThrow(listId);
+    this.assertCanAccessList(list.ownerId, currentUserId);
+
+    await this.prisma.list.delete({
+      where: { id: list.id },
+    });
+  }
+
+  private async findListOrThrow(targetListId: number) {
+    const list = await this.prisma.list.findUnique({
+      where: { id: targetListId },
+    });
+    if (!list) {
+      throw new NotFoundException('List not found');
+    }
+
+    return list;
+  }
+
+  private assertCanAccessList(ownerId: number, currentUserId: number) {
+    const isOwner = ownerId === currentUserId;
+    if (!isOwner) {
+      throw new ForbiddenException(
+        'You cannot delete a list owned by another user',
+      );
+    }
   }
 }
