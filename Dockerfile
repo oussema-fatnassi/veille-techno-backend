@@ -41,4 +41,4 @@ EXPOSE 3000
 
 STOPSIGNAL SIGTERM
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/main.js"]
