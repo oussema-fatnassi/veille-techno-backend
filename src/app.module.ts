@@ -4,9 +4,9 @@ import { z } from 'zod';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { CardsController } from './cards/cards.controller';
 import { UsersModule } from './users/users.module';
 import { ListsModule } from './lists/lists.module';
+import { CardsModule } from './cards/cards.module';
 
 @Module({
   imports: [
@@ -32,9 +32,10 @@ import { ListsModule } from './lists/lists.module';
     AuthModule,
     UsersModule,
     ListsModule,
+    CardsModule,
   ],
 
-  controllers: [AppController, CardsController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
