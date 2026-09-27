@@ -19,8 +19,22 @@ cp .env.example .env
 The default `.env.example` is configured for the Docker PostgreSQL database:
 
 ```env
+NODE_ENV=development
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5433
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_NAME=veille_kanban
+
 DATABASE_URL="postgresql://postgres:postgres@localhost:5433/veille_kanban?schema=public"
+
+JWT_SECRET=replace_with_a_secure_secret
+JWT_EXPIRES_IN=1h
 ```
+
+The real `.env` file is local only and must not be committed.
 
 ## Start the Database
 
@@ -40,15 +54,25 @@ Optional database test:
 docker compose exec postgres psql -U postgres -d veille_kanban -c "SELECT current_database();"
 ```
 
-
-
 ## Install Dependencies
 
 ```bash
 npm install
 ```
 
+## Apply Database Migrations
 
+Run Prisma migrations before starting the API for the first time:
+
+```bash
+npx prisma migrate dev
+```
+
+If Prisma Client is not up to date after schema changes, regenerate it:
+
+```bash
+npx prisma generate
+```
 
 ## Run the App in Development
 
@@ -68,43 +92,44 @@ Swagger documentation is available on:
 http://localhost:3000/api
 ```
 
+## Using Swagger
 
+1. Open the Swagger UI:
 
-## API Routes Status
+   ```text
+   http://localhost:3000/api
+   ```
 
-All application routes are prefixed with `/api`. Protected routes require a JWT bearer token from `POST /api/auth/login`.
+2. Create an account with:
 
+   ```http
+   POST /api/auth/register
+   ```
 
-| Done | Method | Route                       | Description                            | Main success response                 | Main error responses                                                                                              |
-| ---- | ------ | --------------------------- | -------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| ✅    | POST   | `/api/auth/register`        | Register a new user                    | `201` user without `password`         | `400` invalid payload `409` email already used                                                                    |
-| ✅    | POST   | `/api/auth/login`           | Login a user                           | `200` `{ "accessToken": "<JWT>" }`    | `400` invalid payload `401` invalid credentials                                                                   |
-| ✅    | GET    | `/api/users/me`             | Get current authenticated user profile | `200` user without `password`         | `401` missing/invalid token                                                                                       |
-| ✅    | PATCH  | `/api/users/{id}`           | Update user profile and rights         | `200` updated user without `password` | `400` invalid payload `401` missing/invalid token `403` forbidden role/profile update `404` user not found        |
-| ✅    | GET    | `/api/lists`                | List current user's lists              | `200` array of owned lists            | `401` missing/invalid token                                                                                       |
-| ✅    | POST   | `/api/lists`                | Create a list for current user         | `201` created list                    | `400` invalid/missing title `401` missing/invalid token                                                           |
-| ✅    | PATCH  | `/api/lists/{id}`           | Update a list                          | `200` updated list                    | `400` invalid payload `401` missing/invalid token `403` not list owner `404` list not found                       |
-| ✅    | DELETE | `/api/lists/{id}`           | Delete a list                          | `204` no content                      | `401` missing/invalid token `403` not list owner `404` list not found                                             |
-| ✅    | GET    | `/api/lists/{listId}/cards` | List cards of a list                   | `200` array of cards                  | `401` missing/invalid token `403` not list owner `404` list not found                                             |
-| ✅     | POST   | `/api/lists/{listId}/cards` | Create a card in a list                | `201` created card                    | `400` invalid payload `401` missing/invalid token `403` not list owner `404` list not found                       |
-| ✅    | GET    | `/api/cards/{id}`           | Get one card                           | `200` card                            | `401` missing/invalid token `403` not owner of parent list `404` card not found                                   |
-| ✅     | PATCH  | `/api/cards/{id}`           | Update or move a card                  | `200` updated card                    | `400` invalid payload `401` missing/invalid token `403` not owner of source/target list `404` card/list not found |
-| ✅    | DELETE | `/api/cards/{id}`           | Delete a card                          | `204` no content                      | `401` missing/invalid token `403` not owner of parent list `404` card not found                                   |
-| ✅    | GET    | `/api`                      | Swagger documentation                  | Swagger UI                            | -                                                                                                                 |
+3. Login with:
 
+   ```http
+   POST /api/auth/login
+   ```
 
-Legend:
+4. Copy the `accessToken` returned by the login route.
 
-- ✅ Implemented
-- ⏳ Documented in the contract but not implemented yet
+5. Click the `Authorize` button at the top of Swagger and paste the token.
 
+   If Swagger already shows the `Bearer` prefix, paste only the token. Otherwise, paste:
 
+   ```text
+   Bearer <accessToken>
+   ```
 
-## List Deletion Behavior
+6. You can now test protected routes such as:
 
-At the moment, cards are not implemented yet, so deleting a list only deletes the list itself.
-
-When cards are added to the project, the chosen behavior will be cascade deletion: deleting a list will also delete its cards. This keeps the API simple for the Kanban use case, because cards cannot exist without their parent list.
+   ```http
+   GET /api/users/me
+   GET /api/lists
+   POST /api/lists
+   POST /api/lists/{listId}/cards
+   ```
 
 If port `3000` is already used:
 
@@ -119,17 +144,59 @@ http://localhost:3001
 http://localhost:3001/api
 ```
 
+## API Routes Status
 
+All application routes are prefixed with `/api`. Protected routes require a JWT bearer token from `POST /api/auth/login`.
+
+
+| Done | Method | Route | Protected | Description | Main success response | Main error responses |
+|---|---|---|---|---|---|---|
+| ✅ | POST | `/api/auth/register` | No | Register a new user | `201` user without `password` | `400` invalid payload<br>`409` email already used |
+| ✅ | POST | `/api/auth/login` | No | Login a user | `200` `{ "accessToken": "<JWT>" }` | `400` invalid payload<br>`401` invalid credentials |
+| ✅ | GET | `/api/users/me` | Yes | Get current authenticated user profile | `200` user without `password` | `401` missing/invalid token |
+| ✅ | PATCH | `/api/users/{id}` | Yes | Update user profile and rights | `200` updated user without `password` | `400` invalid payload<br>`401` missing/invalid token<br>`403` forbidden role/profile update<br>`404` user not found |
+| ✅ | GET | `/api/lists` | Yes | List current user's lists | `200` array of owned lists | `401` missing/invalid token |
+| ✅ | POST | `/api/lists` | Yes | Create a list for current user | `201` created list | `400` invalid/missing title<br>`401` missing/invalid token |
+| ✅ | PATCH | `/api/lists/{id}` | Yes | Update a list | `200` updated list | `400` invalid payload<br>`401` missing/invalid token<br>`403` not list owner<br>`404` list not found |
+| ✅ | DELETE | `/api/lists/{id}` | Yes | Delete a list | `204` no content | `401` missing/invalid token<br>`403` not list owner<br>`404` list not found |
+| ✅ | GET | `/api/lists/{listId}/cards` | Yes | List cards of a list | `200` array of cards | `401` missing/invalid token<br>`403` not list owner<br>`404` list not found |
+| ✅ | POST | `/api/lists/{listId}/cards` | Yes | Create a card in a list | `201` created card | `400` invalid payload<br>`401` missing/invalid token<br>`403` not list owner<br>`404` list not found |
+| ✅ | GET | `/api/cards/{id}` | Yes | Get one card | `200` card | `401` missing/invalid token<br>`403` not owner of parent list<br>`404` card not found |
+| ✅ | PATCH | `/api/cards/{id}` | Yes | Update or move a card | `200` updated card | `400` invalid payload<br>`401` missing/invalid token<br>`403` not owner of source/target list<br>`404` card/list not found |
+| ✅ | DELETE | `/api/cards/{id}` | Yes | Delete a card | `204` no content | `401` missing/invalid token<br>`403` not owner of parent list<br>`404` card not found |
+| ✅ | GET | `/api` | No | Swagger documentation | Swagger UI | - |
+
+Legend:
+
+- ✅ Implemented
+- ⏳ Documented in the contract but not implemented yet
+
+## Authorization and Error Policy
+
+- `401 Unauthorized`: missing, invalid, or expired JWT.
+- `403 Forbidden`: the resource exists, but the authenticated user is not allowed to access it.
+- `404 Not Found`: the target resource does not exist.
+- User responses never expose the `password` field.
+
+## List Deletion Behavior
+
+Deleting a list also deletes all cards in that list. This is implemented at database level with Prisma:
+
+```prisma
+list List @relation(fields: [listId], references: [id], onDelete: Cascade)
+```
+
+This behavior was chosen because cards cannot exist without their parent list in the Kanban model.
 
 ## Prisma
 
-Test the database connection:
+Useful commands:
 
 ```bash
-npx prisma db pull
+npx prisma migrate dev
+npx prisma generate
+npx prisma studio
 ```
-
-If the database is empty, Prisma may return `P4001`. This is normal before creating tables.
 
 ## Production Build
 
@@ -137,4 +204,3 @@ If the database is empty, Prisma may return `P4001`. This is normal before creat
 npm run build
 npm run start:prod
 ```
-
