@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -26,6 +27,47 @@ import { UsersService } from './users.service';
 @Controller('api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Get('me')
+  @ApiOperation({
+    summary: 'Get current authenticated user profile',
+    description:
+      'Returns the profile of the authenticated user. The password is never returned.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Current user profile. Password is never returned.',
+    content: {
+      'application/json': {
+        example: {
+          id: 1,
+          email: 'oussema@example.com',
+          name: 'Oussema',
+          role: 'USER',
+          createdAt: '2026-09-27T08:00:00.000Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, invalid, or expired bearer token.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Missing authorization token',
+          error: 'Unauthorized',
+          statusCode: 401,
+        },
+      },
+    },
+  })
+  getCurrentUser(@CurrentUser() currentUser: AuthenticatedUser) {
+    return this.usersService.getCurrentUser(currentUser.id);
+  }
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
