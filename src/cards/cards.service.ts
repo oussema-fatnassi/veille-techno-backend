@@ -61,7 +61,6 @@ export class CardsService {
       this.assertCanAccessList(targetList.ownerId, currentUserId);
     }
 
-    const { title, description, position, listId } = dto;
     const updateData: Prisma.CardUncheckedUpdateInput = {};
 
     if (dto.title !== undefined) {
