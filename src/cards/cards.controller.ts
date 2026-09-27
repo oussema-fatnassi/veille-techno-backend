@@ -1,6 +1,6 @@
 import {
-  ApiBody,
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -9,168 +9,101 @@ import {
 import {
   Controller,
   Get,
-  Post,
   Patch,
   Delete,
   NotImplementedException,
   Param,
+  Body,
   UseGuards,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
-  Body,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CardsService } from './cards.service';
-import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { CreateCardDto } from './dto/create-card.dto';
+import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { UpdateCardDto } from './dto/update-card.dto';
 
 @ApiTags('Cards')
-@Controller('api/lists')
+@Controller('api/cards')
 export class CardsController {
   constructor(private readonly cardsService: CardsService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @Get(':listId/cards')
+  @Get(':id')
   @ApiOperation({
-    summary: 'Get all cards of a list',
-    description:
-      'Returns the cards of a list only if the authenticated user owns that list.',
+    summary: '[NOT IMPLEMENTED YET] Get a card for the current user',
   })
-  @ApiParam({
-    name: 'listId',
-    type: Number,
-    description: 'ID of the list whose cards should be returned.',
-    example: 1,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Cards of the selected list.',
-    content: {
-      'application/json': {
-        example: [
-          {
-            id: 1,
-            title: 'Implement authentication',
-            description: 'Add JWT login and protected routes',
-            position: 0,
-            listId: 1,
-            createdAt: '2026-09-26T08:00:00.000Z',
-            updatedAt: '2026-09-26T08:00:00.000Z',
-          },
-        ],
-      },
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Missing, invalid, or expired bearer token.',
-    content: {
-      'application/json': {
-        example: {
-          message: 'Missing authorization token',
-          error: 'Unauthorized',
-          statusCode: 401,
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'The authenticated user is not the owner of this list.',
-    content: {
-      'application/json': {
-        example: {
-          message: 'You cannot access cards owned by another user',
-          error: 'Forbidden',
-          statusCode: 403,
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'The target list does not exist.',
-    content: {
-      'application/json': {
-        example: {
-          message: 'List not found',
-          error: 'Not Found',
-          statusCode: 404,
-        },
-      },
-    },
-  })
-  getCardsOfList(
-    @Param('listId', ParseIntPipe) listId: number,
-    @CurrentUser() currentUser: AuthenticatedUser,
-  ) {
-    return this.cardsService.findAllForList(currentUser.id, listId);
+  @ApiResponse({ status: 501, description: 'Not Implemented yet' })
+  getCard(@Param('id') id: string) {
+    throw new NotImplementedException('Route not implemented yet');
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @HttpCode(HttpStatus.CREATED)
-  @Post(':listId/cards')
+  @HttpCode(HttpStatus.OK)
+  @Patch(':id')
   @ApiOperation({
-    summary: 'Create a new card for the current user in a list',
+    summary: 'Update a card for the current user',
     description:
-      'Creates a card inside a list only if the authenticated user owns that list. The listId is taken from the URL, not from the request body.',
+      'Updates a card only if the authenticated user owns its current parent list. If listId is provided, the target list must also belong to the authenticated user.',
   })
   @ApiParam({
-    name: 'listId',
+    name: 'id',
     type: Number,
-    description: 'ID of the list where the card should be created.',
+    description: 'ID of the card to update.',
     example: 1,
   })
   @ApiBody({
-    type: CreateCardDto,
+    type: UpdateCardDto,
     description:
-      'Card creation payload. The title is required. Description and position are optional.',
+      'Partial card update payload. Send only the fields that must change.',
     examples: {
-      createCard: {
-        summary: 'Create a card',
+      updateTitle: {
+        summary: 'Update card title',
         value: {
-          title: 'Implement login',
-          description: 'Create JWT login endpoint',
+          title: 'Updated card title',
         },
       },
-      createCardWithPosition: {
-        summary: 'Create a card with explicit position',
+      updateDetails: {
+        summary: 'Update description and position',
         value: {
-          title: 'Write tests',
-          description: 'Add service and controller tests',
-          position: 1,
+          description: 'Updated card description',
+          position: 2,
+        },
+      },
+      moveCard: {
+        summary: 'Move card to another owned list',
+        value: {
+          listId: 2,
         },
       },
     },
   })
   @ApiResponse({
-    status: 201,
-    description: 'A card was created.',
+    status: 200,
+    description: 'Card updated successfully.',
     content: {
       'application/json': {
         example: {
           id: 1,
-          title: 'Implement login',
-          description: 'Create JWT login endpoint',
-          position: 0,
-          listId: 1,
+          title: 'Updated card title',
+          description: 'Updated card description',
+          position: 2,
+          listId: 2,
           createdAt: '2026-09-27T08:00:00.000Z',
-          updatedAt: '2026-09-27T08:00:00.000Z',
+          updatedAt: '2026-09-27T09:00:00.000Z',
         },
       },
     },
   })
   @ApiResponse({
     status: 400,
-    description: 'Validation error, for example a missing or empty title.',
+    description: 'Validation error, for example an invalid position or listId.',
     content: {
       'application/json': {
         example: {
-          message: ['title should not be empty', 'title must be a string'],
+          message: ['position must be an integer number'],
           error: 'Bad Request',
           statusCode: 400,
         },
@@ -192,7 +125,8 @@ export class CardsController {
   })
   @ApiResponse({
     status: 403,
-    description: 'The authenticated user is not the owner of this list.',
+    description:
+      'The authenticated user does not own the current parent list or the target list.',
     content: {
       'application/json': {
         example: {
@@ -205,46 +139,23 @@ export class CardsController {
   })
   @ApiResponse({
     status: 404,
-    description: 'The target list does not exist.',
+    description: 'The card or target list does not exist.',
     content: {
       'application/json': {
         example: {
-          message: 'List not found',
+          message: 'Card not found',
           error: 'Not Found',
           statusCode: 404,
         },
       },
     },
   })
-  createCardInList(
-    @Param('listId', ParseIntPipe) listId: number,
-    @Body() createCardDto: CreateCardDto,
+  updateCard(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCardDto: UpdateCardDto,
     @CurrentUser() currentUser: AuthenticatedUser,
   ) {
-    return this.cardsService.createForList(
-      currentUser.id,
-      listId,
-      createCardDto,
-    );
-  }
-
-  @Get(':id')
-  @ApiOperation({
-    summary: '[NOT IMPLEMENTED YET] Get a card for the current user',
-  })
-  @ApiResponse({ status: 501, description: 'Not Implemented yet' })
-  getCard(@Param('id') id: string) {
-    throw new NotImplementedException('Route not implemented yet');
-  }
-
-  @Patch(':id')
-  @ApiOperation({
-    summary:
-      '[NOT IMPLEMENTED YET] Update a card for the current user (title, description, position, list)',
-  })
-  @ApiResponse({ status: 501, description: 'Not Implemented yet' })
-  updateCard(@Param('id') id: string) {
-    throw new NotImplementedException('Route not implemented yet');
+    return this.cardsService.updateCard(currentUser.id, id, updateCardDto);
   }
 
   @Delete(':id')
