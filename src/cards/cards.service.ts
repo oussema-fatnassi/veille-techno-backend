@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateCardDto } from './dto/create-card.dto';
 
 @Injectable()
 export class CardsService {
@@ -19,6 +20,32 @@ export class CardsService {
       },
       orderBy: {
         position: 'asc',
+      },
+    });
+  }
+
+  async createForList(
+    currentUserId: number,
+    listId: number,
+    dto: CreateCardDto,
+  ) {
+    const list = await this.findListOrThrow(listId);
+    this.assertCanAccessList(list.ownerId, currentUserId);
+
+    const cardsCount = await this.prisma.card.count({
+      where: {
+        listId: list.id,
+      },
+    });
+
+    const cardPosition = dto.position ?? cardsCount;
+
+    return this.prisma.card.create({
+      data: {
+        title: dto.title.trim(),
+        description: dto.description?.trim(),
+        position: cardPosition,
+        listId: list.id,
       },
     });
   }
