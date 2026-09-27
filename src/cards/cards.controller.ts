@@ -158,12 +158,69 @@ export class CardsController {
     return this.cardsService.updateCard(currentUser.id, id, updateCardDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @ApiOperation({
-    summary: '[NOT IMPLEMENTED YET] Delete a card for the current user',
+    summary: 'Delete a card for the current user',
+    description:
+      'Deletes a card only if the authenticated user owns the card parent list.',
   })
-  @ApiResponse({ status: 501, description: 'Not Implemented yet' })
-  deleteCard(@Param('id') id: string) {
-    throw new NotImplementedException('Route not implemented yet');
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the card to delete.',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Card deleted successfully. No response body is returned.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, invalid, or expired bearer token.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Missing authorization token',
+          error: 'Unauthorized',
+          statusCode: 401,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'The authenticated user does not own the parent list of this card.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'You cannot access cards owned by another user',
+          error: 'Forbidden',
+          statusCode: 403,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The target card does not exist.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Card not found',
+          error: 'Not Found',
+          statusCode: 404,
+        },
+      },
+    },
+  })
+  deleteCard(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ) {
+    return this.cardsService.deleteCard(currentUser.id, id);
   }
 }
