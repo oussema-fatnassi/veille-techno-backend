@@ -89,7 +89,7 @@ All application routes are prefixed with `/api`. Protected routes require a JWT 
 | ✅     | POST   | `/api/lists/{listId}/cards` | Create a card in a list                | `201` created card                    | `400` invalid payload `401` missing/invalid token `403` not list owner `404` list not found                       |
 | ⏳    | GET    | `/api/cards/{id}`           | Get one card                           | `200` card                            | `401` missing/invalid token `403` not owner of parent list `404` card not found                                   |
 | ✅     | PATCH  | `/api/cards/{id}`           | Update or move a card                  | `200` updated card                    | `400` invalid payload `401` missing/invalid token `403` not owner of source/target list `404` card/list not found |
-| ⏳    | DELETE | `/api/cards/{id}`           | Delete a card                          | `204` no content                      | `401` missing/invalid token `403` not owner of parent list `404` card not found                                   |
+| ✅    | DELETE | `/api/cards/{id}`           | Delete a card                          | `204` no content                      | `401` missing/invalid token `403` not owner of parent list `404` card not found                                   |
 | ✅    | GET    | `/api`                      | Swagger documentation                  | Swagger UI                            | -                                                                                                                 |
 
 

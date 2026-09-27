@@ -85,6 +85,15 @@ export class CardsService {
     });
   }
 
+  async deleteCard(currentUserId: number, cardId: number) {
+    const card = await this.findCardOrThrow(cardId);
+    this.assertCanAccessList(card.list.ownerId, currentUserId);
+
+    await this.prisma.card.delete({
+      where: { id: card.id },
+    });
+  }
+
   private async findListOrThrow(targetListId: number) {
     const list = await this.prisma.list.findUnique({
       where: { id: targetListId },
