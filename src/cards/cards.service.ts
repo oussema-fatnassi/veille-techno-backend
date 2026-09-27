@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCardDto } from './dto/create-card.dto';
+import { UpdateCardDto } from './dto/update-card.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CardsService {
@@ -50,6 +52,40 @@ export class CardsService {
     });
   }
 
+  async updateCard(currentUserId: number, cardId: number, dto: UpdateCardDto) {
+    const card = await this.findCardOrThrow(cardId);
+    this.assertCanAccessList(card.list.ownerId, currentUserId);
+
+    if (dto.listId !== undefined) {
+      const targetList = await this.findListOrThrow(dto.listId);
+      this.assertCanAccessList(targetList.ownerId, currentUserId);
+    }
+
+    const { title, description, position, listId } = dto;
+    const updateData: Prisma.CardUncheckedUpdateInput = {};
+
+    if (dto.title !== undefined) {
+      updateData.title = dto.title.trim();
+    }
+
+    if (dto.description !== undefined) {
+      updateData.description = dto.description.trim();
+    }
+
+    if (dto.position !== undefined) {
+      updateData.position = dto.position;
+    }
+
+    if (dto.listId !== undefined) {
+      updateData.listId = dto.listId;
+    }
+
+    return this.prisma.card.update({
+      where: { id: card.id },
+      data: updateData,
+    });
+  }
+
   private async findListOrThrow(targetListId: number) {
     const list = await this.prisma.list.findUnique({
       where: { id: targetListId },
@@ -59,6 +95,21 @@ export class CardsService {
     }
 
     return list;
+  }
+
+  private async findCardOrThrow(cardId: number) {
+    const card = await this.prisma.card.findUnique({
+      where: { id: cardId },
+      include: {
+        list: true,
+      },
+    });
+
+    if (!card) {
+      throw new NotFoundException('Card not found');
+    }
+
+    return card;
   }
 
   private assertCanAccessList(ownerId: number, currentUserId: number) {
