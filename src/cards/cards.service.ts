@@ -94,6 +94,16 @@ export class CardsService {
     });
   }
 
+  async getCard(currentUserId: number, cardId: number) {
+    const card = await this.findCardOrThrow(cardId);
+
+    this.assertCanAccessList(card.list.ownerId, currentUserId);
+
+    const { list: _list, ...safeCard } = card;
+
+    return safeCard;
+  }
+
   private async findListOrThrow(targetListId: number) {
     const list = await this.prisma.list.findUnique({
       where: { id: targetListId },
