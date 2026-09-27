@@ -30,13 +30,83 @@ import { UpdateCardDto } from './dto/update-card.dto';
 export class CardsController {
   constructor(private readonly cardsService: CardsService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   @ApiOperation({
-    summary: '[NOT IMPLEMENTED YET] Get a card for the current user',
+    summary: 'Get a card for the current user',
+    description:
+      'Returns a card only if the authenticated user owns its parent list.',
   })
-  @ApiResponse({ status: 501, description: 'Not Implemented yet' })
-  getCard(@Param('id') id: string) {
-    throw new NotImplementedException('Route not implemented yet');
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the card to retrieve.',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Card retrieved successfully.',
+    content: {
+      'application/json': {
+        example: {
+          id: 1,
+          title: 'Implement authentication',
+          description: 'Add JWT login and protected routes',
+          position: 0,
+          listId: 1,
+          createdAt: '2026-09-27T08:00:00.000Z',
+          updatedAt: '2026-09-27T08:00:00.000Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, invalid, or expired bearer token.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Missing authorization token',
+          error: 'Unauthorized',
+          statusCode: 401,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'The authenticated user does not own the parent list of this card.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'You cannot access cards owned by another user',
+          error: 'Forbidden',
+          statusCode: 403,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The target card does not exist.',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Card not found',
+          error: 'Not Found',
+          statusCode: 404,
+        },
+      },
+    },
+  })
+  getCard(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ) {
+    return this.cardsService.getCard(currentUser.id, id);
   }
 
   @UseGuards(JwtAuthGuard)
