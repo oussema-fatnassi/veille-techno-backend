@@ -30,6 +30,11 @@ export class UsersService {
     return this.toSafeUser(updatedUser);
   }
 
+  async getCurrentUser(currentUserId: number) {
+    const user = await this.findUserOrThrow(currentUserId);
+    return this.toSafeUser(user);
+  }
+
   private async findUserOrThrow(targetUserId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: targetUserId },
