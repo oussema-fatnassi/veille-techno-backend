@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateListDto } from './dto/create-list.dto';
+import { UpdateListDto } from './dto/update-list-dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ListsService {
@@ -49,6 +51,30 @@ export class ListsService {
     });
   }
 
+  async updateForUser(
+    currentUserId: number,
+    listId: number,
+    dto: UpdateListDto,
+  ) {
+    const list = await this.findListOrThrow(listId);
+    this.assertCanAccessList(list.ownerId, currentUserId);
+
+    const updateData: Prisma.ListUpdateInput = {};
+
+    if (dto.title !== undefined) {
+      updateData.title = dto.title.trim();
+    }
+
+    if (dto.position !== undefined) {
+      updateData.position = dto.position;
+    }
+
+    return this.prisma.list.update({
+      where: { id: list.id },
+      data: updateData,
+    });
+  }
+
   private async findListOrThrow(targetListId: number) {
     const list = await this.prisma.list.findUnique({
       where: { id: targetListId },
@@ -64,7 +90,7 @@ export class ListsService {
     const isOwner = ownerId === currentUserId;
     if (!isOwner) {
       throw new ForbiddenException(
-        'You cannot delete a list owned by another user',
+        'You cannot access a list owned by another user',
       );
     }
   }
