@@ -1,3 +1,8 @@
+/**
+ * Replaces Swagger decorators with no-ops in Jest unit tests to avoid ESM loading issues.
+ * These tests check application behavior, not generated OpenAPI metadata.
+ */
+
 const noopDecorator = () => () => undefined;
 
 export const ApiBearerAuth = noopDecorator;

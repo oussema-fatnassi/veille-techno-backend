@@ -1,3 +1,7 @@
+/**
+ * Obtains a real JWT through the login endpoint for authenticated e2e requests.
+ */
+
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TEST_PASSWORD } from './users.fixture';

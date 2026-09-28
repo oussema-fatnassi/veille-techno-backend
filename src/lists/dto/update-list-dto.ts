@@ -1,3 +1,7 @@
+/**
+ * Defines optional title and position changes with validation and Swagger metadata.
+ */
+
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,

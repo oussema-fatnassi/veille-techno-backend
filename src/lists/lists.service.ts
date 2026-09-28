@@ -1,3 +1,8 @@
+/**
+ * Manages lists through Prisma, restricting access to their owner.
+ * List deletion relies on the database relation to cascade to cards.
+ */
+
 import {
   Injectable,
   ForbiddenException,

@@ -1,3 +1,8 @@
+/**
+ * Creates database users for e2e tests, including distinct owners for access checks.
+ * Hashes the default password with bcrypt; supplied password overrides must be hashes.
+ */
+
 import * as bcrypt from 'bcrypt';
 import { Prisma, Role, User } from '@prisma/client';
 import { PrismaService } from '../../src/prisma/prisma.service';

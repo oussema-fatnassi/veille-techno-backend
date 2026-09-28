@@ -1,8 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Defines PostgreSQL storage and generates the Prisma client used by PrismaService.
+// Users own lists; cards belong to lists and are deleted with their parent list.
 
 generator client {
   provider = "prisma-client-js"

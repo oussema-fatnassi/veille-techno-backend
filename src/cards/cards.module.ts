@@ -1,3 +1,7 @@
+/**
+ * Wires both card controllers to CardsService, JWT verification and Prisma.
+ */
+
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';

@@ -1,3 +1,7 @@
+/**
+ * Creates Prisma-backed card fixtures whose ownership follows their parent lists.
+ */
+
 import { Card, Prisma } from '@prisma/client';
 import { PrismaService } from '../../src/prisma/prisma.service';
 

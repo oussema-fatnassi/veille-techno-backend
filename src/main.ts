@@ -1,3 +1,8 @@
+/**
+ * Bootstraps Nest with global request validation and Swagger documentation.
+ * Uses ConfigService for the listening port and AppModule for the application wiring.
+ */
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';

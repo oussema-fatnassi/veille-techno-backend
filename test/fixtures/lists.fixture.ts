@@ -1,3 +1,7 @@
+/**
+ * Creates Prisma-backed list fixtures for owner and non-owner e2e scenarios.
+ */
+
 import { List, Prisma } from '@prisma/client';
 import { PrismaService } from '../../src/prisma/prisma.service';
 

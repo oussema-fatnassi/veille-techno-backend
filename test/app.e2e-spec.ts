@@ -1,3 +1,8 @@
+/**
+ * Exercises the HTTP API with real Prisma persistence and reusable fixtures.
+ * Requires a dedicated test database, whose data is cleared between scenarios.
+ */
+
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';

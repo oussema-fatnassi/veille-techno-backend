@@ -1,3 +1,7 @@
+/**
+ * Keeps the starter root endpoint available through AppService, outside Swagger.
+ */
+
 import { Controller, Get } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { AppService } from './app.service';

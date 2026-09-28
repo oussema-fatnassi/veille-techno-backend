@@ -1,3 +1,8 @@
+/**
+ * Uses Prisma to read and update profiles under self-update and admin rules.
+ * Hashes new passwords with bcrypt and removes password hashes from responses.
+ */
+
 import {
   Injectable,
   NotFoundException,

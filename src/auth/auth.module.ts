@@ -1,3 +1,8 @@
+/**
+ * Wires authentication to Prisma and configures JWT signing from ConfigService.
+ * Exports JwtModule so protected feature routes can verify tokens.
+ */
+
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';

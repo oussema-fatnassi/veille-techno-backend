@@ -1,3 +1,7 @@
+/**
+ * Validates and documents card creation fields; the parent list comes from the URL.
+ */
+
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,

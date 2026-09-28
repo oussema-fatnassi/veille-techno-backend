@@ -1,3 +1,8 @@
+/**
+ * Replaces the target database's users, lists and cards with demo data.
+ * Uses Prisma and bcrypt; refuses production mode and unexpected database names.
+ */
+
 import 'dotenv/config';
 import * as bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';

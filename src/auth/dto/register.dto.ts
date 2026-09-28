@@ -1,3 +1,8 @@
+/**
+ * Defines registration input validation and Swagger field metadata.
+ * Password hashing and email uniqueness checks belong to AuthService.
+ */
+
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,

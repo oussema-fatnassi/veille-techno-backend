@@ -1,3 +1,8 @@
+/**
+ * Exposes public registration and login routes with their Swagger contract.
+ * Delegates account creation and token issuance to AuthService.
+ */
+
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';

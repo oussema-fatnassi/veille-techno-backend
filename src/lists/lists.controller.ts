@@ -1,3 +1,8 @@
+/**
+ * Exposes authenticated list routes and their Swagger contract.
+ * Delegates persistence and ownership checks to ListsService.
+ */
+
 import {
   ApiBody,
   ApiOperation,

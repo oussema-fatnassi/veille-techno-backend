@@ -1,3 +1,8 @@
+/**
+ * Verifies bearer tokens with JwtService and attaches their identity to the request.
+ * Resource ownership checks remain in the services; roles come from the token.
+ */
+
 import {
   CanActivate,
   ExecutionContext,

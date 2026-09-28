@@ -1,3 +1,7 @@
+/**
+ * Validates and documents login credentials without reapplying registration rules.
+ */
+
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
 

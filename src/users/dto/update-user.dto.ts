@@ -1,3 +1,8 @@
+/**
+ * Validates and documents optional profile changes for PATCH requests.
+ * UsersService decides whether the caller may change the requested role.
+ */
+
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,

@@ -1,3 +1,8 @@
+/**
+ * Clears fixture data in dependency order between e2e tests.
+ * Checks the database URL for the test database name before deleting records.
+ */
+
 import { PrismaService } from '../../src/prisma/prisma.service';
 
 function assertTestDatabase() {

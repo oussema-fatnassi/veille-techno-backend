@@ -1,3 +1,7 @@
+/**
+ * Validates and documents list creation input; ownership comes from the JWT.
+ */
+
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,

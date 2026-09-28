@@ -1,3 +1,8 @@
+/**
+ * Wraps the generated Prisma client as an injectable Nest provider.
+ * Connects on module initialization and disconnects on module destruction.
+ */
+
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 

@@ -1,3 +1,8 @@
+/**
+ * Defines optional card changes, including a destination list for moves.
+ * CardsService verifies access to the destination; the DTO validates its type.
+ */
+
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
