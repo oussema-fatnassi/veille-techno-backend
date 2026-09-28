@@ -8,12 +8,13 @@
   "scripts": {
     "build": "nest build",
     "deploy": "nest deploy",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"prisma/**/*.mjs\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"prisma/**/*.mjs\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
+    "seed": "node prisma/seed.mjs",
     "lint": "oxlint --type-aware src/ test/",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "test:unit": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
@@ -23,6 +24,9 @@
     "test:e2e": "NODE_ENV=test JWT_SECRET=${JWT_SECRET:-test_secret_for_e2e} JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1h} DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5433/veille_kanban_test?schema=public} node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand",
     "contract:emit": "prisma contract emit",
     "prepare": "husky"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",

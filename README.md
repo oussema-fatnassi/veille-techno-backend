@@ -74,6 +74,24 @@ If Prisma Client is not up to date after schema changes, regenerate it:
 npx prisma generate
 ```
 
+## Seed Demo Data
+
+For a demonstration, you can empty the local database and recreate demo users, lists, and cards:
+
+```bash
+npm run seed
+```
+
+The seed script deletes existing cards, lists, and users from the current non-production database, then creates:
+
+| Email             | Password  | Role    | Demo data              |
+| ----------------- | --------- | ------- | ---------------------- |
+| `admin@test.com`  | Test1234. | `ADMIN` | admin lists and cards  |
+| `tesst1@test.com` | Test1234. | `USER`  | user 1 lists and cards |
+| `test2@test.com`  | Test1234. | `USER`  | user 2 lists and cards |
+
+The script refuses to run when `NODE_ENV=production`, and it only accepts database names starting with `veille_kanban`.
+
 ## Run the App in Development
 
 ```bash
