@@ -1,3 +1,8 @@
+/**
+ * Handles registration and login using Prisma, bcrypt and JwtService.
+ * Keeps password hashes out of registration responses and JWT payloads.
+ */
+
 import {
   Injectable,
   ConflictException,

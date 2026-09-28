@@ -1,3 +1,8 @@
+/**
+ * Handles card listing and creation under /api/lists/:listId/cards.
+ * Shares CardsService with the individual-card controller for ownership checks.
+ */
+
 import {
   ApiBody,
   ApiBearerAuth,

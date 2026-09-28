@@ -1,3 +1,8 @@
+/**
+ * Handles individual card routes under /api/cards with Swagger documentation.
+ * Delegates access checks and changes to CardsService using the JWT identity.
+ */
+
 import {
   ApiBearerAuth,
   ApiBody,
@@ -11,7 +16,6 @@ import {
   Get,
   Patch,
   Delete,
-  NotImplementedException,
   Param,
   Body,
   UseGuards,

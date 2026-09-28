@@ -1,3 +1,8 @@
+/**
+ * Assembles the feature modules and validates environment configuration with Zod.
+ * Makes ConfigService available throughout the application.
+ */
+
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { z } from 'zod';

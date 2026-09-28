@@ -1,3 +1,8 @@
+/**
+ * Exposes the identity attached by JwtAuthGuard as a controller parameter.
+ * Use on guarded routes; this decorator does not authenticate requests itself.
+ */
+
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { AuthenticatedUser } from '../types/authenticated-user.type';
 

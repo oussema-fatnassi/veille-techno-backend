@@ -1,3 +1,8 @@
+/**
+ * Manages cards through Prisma with ownership inherited from their parent list.
+ * Moving a card requires ownership of both the source and destination lists.
+ */
+
 import {
   Injectable,
   ForbiddenException,

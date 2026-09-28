@@ -1,3 +1,8 @@
+/**
+ * Exposes authenticated profile reads and updates with Swagger documentation.
+ * Passes the guard-provided identity to UsersService for permission checks.
+ */
+
 import {
   Body,
   Controller,

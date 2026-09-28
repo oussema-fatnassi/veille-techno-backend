@@ -17,9 +17,14 @@ const config: Config = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  moduleNameMapper: pathsToModuleNameMapper(paths, { prefix: '<rootDir>/' }),
+  moduleNameMapper: {
+    '^@nestjs/swagger$': '<rootDir>/test/mocks/nestjs-swagger.mock.ts',
+    ...pathsToModuleNameMapper(paths, { prefix: '<rootDir>/' }),
+  },
   collectCoverageFrom: [
     'src/**/*.(t|j)s',
+    '!src/main.ts',
+    '!src/**/*.module.ts',
     'libs/**/*.(t|j)s',
     'apps/**/*.(t|j)s',
   ],
