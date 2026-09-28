@@ -1,0 +1,31 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "test/.*\\.e2e-spec\\.ts$",
+  "extensionsToTreatAsEsm": [".ts"],
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": {
+          "module": "ES2022",
+          "moduleResolution": "bundler",
+          "target": "ES2023",
+          "esModuleInterop": true,
+          "allowSyntheticDefaultImports": true,
+          "emitDecoratorMetadata": true,
+          "experimentalDecorators": true,
+          "isolatedModules": true,
+          "strict": true,
+          "strictPropertyInitialization": false,
+          "types": ["node", "jest"]
+        }
+      }
+    ]
+  },
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  }
+}

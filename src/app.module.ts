@@ -1,0 +1,46 @@
+/**
+ * Assembles the feature modules and validates environment configuration with Zod.
+ * Makes ConfigService available throughout the application.
+ */
+
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { z } from 'zod';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { ListsModule } from './lists/lists.module';
+import { CardsModule } from './cards/cards.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: z.object({
+        NODE_ENV: z
+          .enum(['development', 'production', 'test'])
+          .default('development'),
+        PORT: z.coerce.number().int().positive().default(3000),
+        DB_HOST: z.string().default('localhost'),
+        DB_PORT: z.coerce.number().int().positive().default(5433),
+        DB_USER: z.string().default('postgres'),
+        DB_PASSWORD: z.string().default('postgres'),
+        DB_NAME: z.string().default('veille_kanban'),
+        DATABASE_URL: z
+          .string()
+          .url('DATABASE_URL must be a valid database URL'),
+        JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
+        JWT_EXPIRES_IN: z.string().default('1h'),
+      }),
+    }),
+    AuthModule,
+    UsersModule,
+    ListsModule,
+    CardsModule,
+  ],
+
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}

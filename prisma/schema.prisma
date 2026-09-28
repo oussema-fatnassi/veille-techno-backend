@@ -1,0 +1,48 @@
+// Defines PostgreSQL storage and generates the Prisma client used by PrismaService.
+// Users own lists; cards belong to lists and are deleted with their parent list.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  lists     List[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model List {
+  id        Int      @id @default(autoincrement())
+  title     String
+  position  Int
+  ownerId   Int
+  owner     User     @relation(fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cards     Card[]
+}
+
+model Card {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  position    Int
+  listId      Int
+  list        List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
