@@ -19,10 +19,11 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Kanban Board API')
-    .setDescription('The Kanban Board API description')
+    .setDescription(
+      'REST API for a Kanban board application. It provides authentication with JWT, user profile management, list management, and card management with ownership-based access control.',
+    )
     .setVersion('1.0')
     .addBearerAuth()
-    .addTag('kanban')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
