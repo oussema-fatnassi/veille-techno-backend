@@ -11,7 +11,6 @@ import {
   Get,
   Patch,
   Delete,
-  NotImplementedException,
   Param,
   Body,
   UseGuards,
