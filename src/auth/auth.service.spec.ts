@@ -1,15 +1,13 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthService } from './auth.service';
+import { AuthService, REGISTER_RESPONSE } from './auth.service';
 
 jest.mock('@nestjs/common', () => {
-  class ConflictException extends Error {}
   class UnauthorizedException extends Error {}
 
   return {
-    ConflictException,
     Injectable: () => () => undefined,
     UnauthorizedException,
   };
@@ -57,26 +55,16 @@ describe('AuthService', () => {
     );
   });
 
-  it('creates a user with a hashed password and does not return the password', async () => {
+  it('creates a user with a hashed password and returns the generic response', async () => {
     const registerDto = {
       email: ' User@Example.com ',
       password: 'Password1',
       name: ' Test ',
     };
-    const expectedUser = {
-      id: 1,
-      email: 'user@example.com',
-      name: 'Test',
-      role: 'USER',
-      createdAt: new Date('2026-09-23T12:00:00.000Z'),
-    };
 
     jest.mocked(bcrypt.hash).mockResolvedValue('hashed-password' as never);
     prismaServiceMock.user.findUnique.mockResolvedValue(null);
-    prismaServiceMock.user.create.mockResolvedValue({
-      ...expectedUser,
-      password: 'hashed-password',
-    });
+    prismaServiceMock.user.create.mockResolvedValue({ id: 1 });
 
     const result = await service.register(registerDto);
 
@@ -91,15 +79,30 @@ describe('AuthService', () => {
         name: 'Test',
       },
     });
-    expect(result).toEqual(expectedUser);
-    expect(result).not.toHaveProperty('password');
+    expect(result).toBe(REGISTER_RESPONSE);
   });
 
-  it('throws 409 Conflict when the email already exists', async () => {
+  it('returns the same response without creating a user when the email already exists', async () => {
     prismaServiceMock.user.findUnique.mockResolvedValue({
       id: 1,
       email: 'user@example.com',
     });
+
+    const result = await service.register({
+      email: 'user@example.com',
+      password: 'Password1',
+      name: 'Test',
+    });
+
+    expect(result).toBe(REGISTER_RESPONSE);
+    // Hashing still runs so response timing does not reveal the email exists.
+    expect(bcrypt.hash).toHaveBeenCalledWith('Password1', 10);
+    expect(prismaServiceMock.user.create).not.toHaveBeenCalled();
+  });
+
+  it('returns the same response when a concurrent registration hits the unique constraint', async () => {
+    prismaServiceMock.user.findUnique.mockResolvedValue(null);
+    prismaServiceMock.user.create.mockRejectedValue({ code: 'P2002' });
 
     await expect(
       service.register({
@@ -107,9 +110,21 @@ describe('AuthService', () => {
         password: 'Password1',
         name: 'Test',
       }),
-    ).rejects.toBeInstanceOf(ConflictException);
+    ).resolves.toBe(REGISTER_RESPONSE);
+  });
 
-    expect(prismaServiceMock.user.create).not.toHaveBeenCalled();
+  it('rethrows unexpected database errors during registration', async () => {
+    const dbError = new Error('connection lost');
+    prismaServiceMock.user.findUnique.mockResolvedValue(null);
+    prismaServiceMock.user.create.mockRejectedValue(dbError);
+
+    await expect(
+      service.register({
+        email: 'user@example.com',
+        password: 'Password1',
+        name: 'Test',
+      }),
+    ).rejects.toBe(dbError);
   });
 
   it('returns an access token when login credentials are valid', async () => {

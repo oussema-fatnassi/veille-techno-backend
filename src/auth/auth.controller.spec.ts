@@ -11,14 +11,20 @@ jest.mock('@nestjs/common', () => {
     Controller: () => () => undefined,
     HttpCode: () => () => undefined,
     HttpStatus: {
+      ACCEPTED: 202,
       CREATED: 201,
       OK: 200,
     },
     Injectable: () => () => undefined,
     NotImplementedException,
     Post: () => () => undefined,
+    UseGuards: () => () => undefined,
   };
 });
+
+jest.mock('./guards/register-rate-limit.guard', () => ({
+  RegisterRateLimitGuard: jest.fn(),
+}));
 
 jest.mock('@nestjs/swagger', () => ({
   ApiBody: () => () => undefined,
@@ -56,13 +62,7 @@ describe('AuthController', () => {
       password: 'Password1',
       name: 'Test',
     };
-    const expectedResult = {
-      id: 1,
-      email: 'user@example.com',
-      name: 'Test',
-      role: 'USER',
-      createdAt: new Date('2026-09-23T12:00:00.000Z'),
-    };
+    const expectedResult = { message: 'generic' };
 
     authServiceMock.register.mockResolvedValue(expectedResult);
 
