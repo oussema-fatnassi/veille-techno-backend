@@ -4,22 +4,31 @@
  */
 
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterRateLimitGuard } from './guards/register-rate-limit.guard';
 
 @ApiTags('Auth')
 @Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.ACCEPTED)
+  @UseGuards(RegisterRateLimitGuard)
   @Post('register')
   @ApiOperation({
     summary: 'Register a new user',
     description:
-      'Creates a new account with a unique email, hashes the password, and returns the created user without the password.',
+      'Creates an account if the email is not already used. Always returns the same 202 response so callers cannot tell whether an email has an account. Limited to 5 requests per minute per IP.',
   })
   @ApiBody({
     type: RegisterDto,
@@ -35,12 +44,16 @@ export class AuthController {
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'User created successfully' })
+  @ApiResponse({
+    status: 202,
+    description:
+      'Registration accepted (same response whether or not the email already had an account)',
+  })
   @ApiResponse({
     status: 400,
     description: 'Invalid email, weak password or missing required field',
   })
-  @ApiResponse({ status: 409, description: 'Email already used' })
+  @ApiResponse({ status: 429, description: 'Too many registration attempts' })
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }

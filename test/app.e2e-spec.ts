@@ -8,6 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { REGISTER_RESPONSE } from '../src/auth/auth.service';
 import { loginFixture } from './fixtures/auth.fixture';
 import {
   TEST_PASSWORD,
@@ -56,7 +57,7 @@ describe('Kanban API fixtures (e2e)', () => {
   });
 
   describe('auth fixtures', () => {
-    it('registers a user without exposing the password', async () => {
+    it('registers a user and returns a generic response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/auth/register')
         .send({
@@ -64,29 +65,29 @@ describe('Kanban API fixtures (e2e)', () => {
           password: TEST_PASSWORD,
           name: 'New User',
         })
-        .expect(201);
+        .expect(202);
 
-      expect(response.body).toMatchObject({
-        email: 'new.user@example.com',
-        name: 'New User',
-        role: 'USER',
-      });
-      expect(response.body).not.toHaveProperty('password');
+      expect(response.body).toEqual(REGISTER_RESPONSE);
+      await expect(
+        prisma.user.findUnique({ where: { email: 'new.user@example.com' } }),
+      ).resolves.toMatchObject({ name: 'New User' });
     });
 
-    it('rejects duplicated emails', async () => {
+    it('answers a duplicated email exactly like a new one', async () => {
       await createUserFixture(prisma, {
         email: 'duplicate@example.com',
       });
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/api/auth/register')
         .send({
           email: 'duplicate@example.com',
           password: TEST_PASSWORD,
           name: 'Duplicate User',
         })
-        .expect(409);
+        .expect(202);
+
+      expect(response.body).toEqual(REGISTER_RESPONSE);
     });
 
     it('returns an access token on login', async () => {
